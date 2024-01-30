@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,15 +27,15 @@ public class CourseController {
     @Autowired
     private CourseRepository courseRepository;
 
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity<CourseEntity> create(@RequestBody CourseEntity courseEntity){  
 
         CourseEntity saveCourse = courseRepository.save(courseEntity);
 
-        return new ResponseEntity<>(saveCourse, HttpStatus.CREATED);
+        return new ResponseEntity(saveCourse, HttpStatus.CREATED);
     }
 
-    @GetMapping("/show")
+    @GetMapping("/")
     public ResponseEntity<List<CourseEntity>> show(
         @RequestParam(required = false, defaultValue = "true") Boolean active
     ) {
@@ -45,10 +46,10 @@ public class CourseController {
         }else {
             courses = courseRepository.findAll();
         }
-        return new ResponseEntity<>(courses, HttpStatus.OK);
+        return new ResponseEntity(courses, HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<CourseEntity> update(@PathVariable Long id, @RequestBody CourseEntity updated) {
         
         Optional<CourseEntity> optionalCourse = courseRepository.findById(id);
@@ -69,6 +70,17 @@ public class CourseController {
             return new ResponseEntity<>(savedCourse, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CourseEntity> delete(@PathVariable Long id) {
+        Optional<CourseEntity> optionalCourse = courseRepository.findById(id);
+        if(optionalCourse.isPresent()){
+            courseRepository.deleteById(id);
+            return new ResponseEntity("Curso removido com sucesso.", HttpStatus.OK);
+        }else {
+            return new ResponseEntity("Curso não encontrado.", HttpStatus.NOT_FOUND);
         }
     }
 }
